@@ -6,28 +6,64 @@ import {
   GraphQLString,
   GraphQLList,
   GraphQLInt,
+  findBreakingChanges,
 } from "graphql";
-import { booksData } from "./data.js";
+import { booksData, authorsData } from "./data.js";
 
 const app = express();
 
-const booksDataFields = new GraphQLObjectType({
+const autherDataType = new GraphQLObjectType({
+  name: "auther",
+  description: "Auther data fields",
+  fields: () => ({
+    id: { type: GraphQLInt },
+    name: { type: GraphQLString },
+    books: {
+      type: new GraphQLList(bookDataType),
+      resolve: (author) => {
+        return booksData.filter((book) => book.authorId == author.id);
+      },
+    },
+  }),
+});
+
+const bookDataType = new GraphQLObjectType({
   name: "book",
-  description: "book object with book id , name and auther id",
+  description: "book data field",
   fields: () => ({
     id: { type: GraphQLInt },
     name: { type: GraphQLString },
     authorId: { type: GraphQLInt },
+    auther: {
+      type: autherDataType,
+      resolve: (book) => {
+        return authorsData.find((author) => author.id == book.authorId);
+      },
+    },
   }),
 });
 
 const query = new GraphQLObjectType({
   name: "RootQuery",
-  description: "First main query",
+  description: "Root Query",
   fields: () => ({
     books: {
-      type: new GraphQLList(booksDataFields),
+      type: new GraphQLList(bookDataType),
       resolve: () => booksData,
+    },
+    authors: {
+      type: new GraphQLList(autherDataType),
+      resolve: () => authorsData,
+    },
+    book: {
+      type: bookDataType,
+      args: {
+        id: { type: GraphQLInt },
+        name: { type: GraphQLString },
+      },
+      resolve: (book, args) => {
+        return booksData.find((book) => book.id == args.id);
+      },
     },
   }),
 });

@@ -1,4 +1,4 @@
-const authors = [
+const authorsData = [
   { id: 1, name: "J. K. Rowling" },
   { id: 2, name: "J. R. R. Tolkien" },
   { id: 3, name: "Brent Weeks" },
@@ -15,4 +15,4 @@ const booksData = [
   { id: 8, name: "Beyond the Shadows", authorId: 3 },
 ];
 
-export { booksData, authors };
+export { booksData, authorsData };
