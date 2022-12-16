@@ -7,6 +7,7 @@ import {
   GraphQLList,
   GraphQLInt,
   findBreakingChanges,
+  GraphQLNonNull,
 } from "graphql";
 import { booksData, authorsData } from "./data.js";
 
@@ -43,6 +44,27 @@ const bookDataType = new GraphQLObjectType({
   }),
 });
 
+const mutation = new GraphQLObjectType({
+  name: "RootMutation",
+  description: "Root mutation to add book and auther",
+  fields: () => ({
+    addBook: {
+      type: bookDataType,
+      args: {
+        authorId: { type: new GraphQLNonNull(GraphQLInt) },
+        name: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: (book, args) => {
+        booksData.push({
+          id: booksData.length + 1,
+          name: args.name,
+          authorsId: args.authorId,
+        });
+      },
+    },
+  }),
+});
+
 const query = new GraphQLObjectType({
   name: "RootQuery",
   description: "Root Query",
@@ -70,6 +92,7 @@ const query = new GraphQLObjectType({
 
 const schema = new GraphQLSchema({
   query,
+  mutation,
 });
 
 app.use(
